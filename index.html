@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Friendsgiving 2026 — Sign Up</title>
+<meta name="description" content="Friendsgiving 2026 sign-up: claim a dish, app, or drink to bring.">
+<style>
+  :root{
+    --cream:#fff8ec; --paper:#fffdf6; --ink:#3a2415; --muted:#7a5c42;
+    --orange:#d95d1e; --orange-dark:#b34a12; --gold:#e9a319; --green:#5b7a3a;
+    --red:#a63a2e; --line:#ecd9b8; --claimed:#eef3e6; --open:#fff3df;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 64px}
+
+  /* ---------- hero ---------- */
+  header.hero{text-align:center;padding:28px 0 8px}
+  .turkey-frame{display:inline-block;background:#fff;border:4px solid var(--ink);
+    border-radius:18px;box-shadow:6px 6px 0 var(--ink);padding:10px 10px 6px;
+    transform:rotate(-1.2deg)}
+  .turkey-frame img{display:block;width:min(300px,72vw);height:auto;border-radius:10px}
+  .turkey-frame figcaption{font-size:13px;color:var(--muted);padding:8px 4px 4px;font-weight:600}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,8vw,52px);
+    margin:18px 0 2px;color:var(--red);letter-spacing:.5px}
+  .sub{font-size:17px;color:var(--muted);margin:0 0 14px}
+  .sub b{color:var(--ink)}
+
+  /* ---------- status / progress ---------- */
+  .status{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;
+    border:2px solid var(--ink);border-radius:999px;padding:6px 14px;background:#fff;
+    box-shadow:3px 3px 0 var(--ink);margin:4px 0 16px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#2e9e4f;display:inline-block}
+  .dot.demo{background:var(--gold)}
+  .dot.err{background:#c0392b}
+  .progress{height:14px;border:2px solid var(--ink);border-radius:999px;background:#fff;
+    overflow:hidden;margin:0 auto 6px;max-width:420px}
+  .progress > div{height:100%;background:var(--green);width:0%;transition:width .4s}
+  .progress-label{font-size:14px;color:var(--muted);margin-bottom:18px}
+  .demo-note{background:#fdf0c2;border:2px dashed var(--gold);border-radius:12px;
+    padding:12px 14px;font-size:14px;margin:0 0 18px;text-align:left}
+
+  /* ---------- guests ---------- */
+  .guests{background:var(--paper);border:2px solid var(--line);border-radius:14px;
+    padding:14px 16px;margin-bottom:26px;text-align:left}
+  .guests h2{font-size:15px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+    margin:0 0 10px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:#fff;border:2px solid var(--ink);border-radius:999px;
+    padding:5px 12px;font-size:14px;font-weight:700;box-shadow:2px 2px 0 var(--ink)}
+  .chip span{color:var(--muted);font-weight:600}
+
+  /* ---------- sections ---------- */
+  section.cat{margin-bottom:30px}
+  section.cat > h2{font-family:Georgia,serif;font-size:26px;color:var(--red);
+    border-bottom:3px solid var(--red);padding-bottom:6px;margin:0 0 14px}
+  .item{background:var(--paper);border:3px solid var(--ink);border-radius:14px;
+    padding:14px 16px;margin-bottom:12px;box-shadow:4px 4px 0 var(--ink)}
+  .item-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .item-head .emoji{font-size:24px}
+  .item-head h3{margin:0;font-size:19px;flex:1}
+  .item-head .count{font-size:13px;color:var(--muted);font-weight:700}
+  .item-head .del{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);
+    padding:2px 6px;line-height:1}
+  .item-head .del:hover{color:var(--red)}
+  .slots{margin-top:10px;display:grid;gap:8px}
+  .slot{display:flex;align-items:center;gap:10px;border:2px dashed #cbb27f;
+    border-radius:10px;padding:10px 12px;background:var(--open);font-size:15px}
+  .slot.claimed{border-style:solid;border-color:var(--green);background:var(--claimed)}
+  .slot .who{flex:1;min-width:0}
+  .slot .who b{display:block}
+  .slot .who small{color:var(--muted)}
+  .btn{border:2px solid var(--ink);border-radius:999px;background:var(--orange);color:#fff;
+    font-weight:800;font-size:14px;padding:8px 16px;cursor:pointer;box-shadow:2px 2px 0 var(--ink);
+    white-space:nowrap}
+  .btn:active{transform:translate(2px,2px);box-shadow:none}
+  .btn.ghost{background:#fff;color:var(--ink)}
+  .btn.small{padding:5px 12px;font-size:13px}
+  .claim-form{margin-top:10px;background:#fff;border:2px solid var(--ink);border-radius:10px;
+    padding:12px;display:grid;gap:8px}
+  .claim-form label{font-size:13px;font-weight:700;color:var(--muted)}
+  .claim-form select,.claim-form input[type=text]{
+    width:100%;font-size:16px;padding:10px;border:2px solid var(--ink);border-radius:8px;
+    background:#fff;color:var(--ink)}
+  .form-row{display:flex;gap:8px;justify-content:flex-end}
+
+  /* ---------- add custom ---------- */
+  .add-box{background:var(--paper);border:3px dashed var(--orange);border-radius:14px;
+    padding:16px;margin-bottom:30px}
+  .add-box h2{font-family:Georgia,serif;font-size:22px;color:var(--red);margin:0 0 4px}
+  .add-box p{margin:0 0 12px;color:var(--muted);font-size:14px}
+  .add-grid{display:grid;gap:8px}
+  @media(min-width:560px){.add-grid{grid-template-columns:1fr 170px auto;align-items:end}}
+  .add-grid label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px}
+  .add-grid input[type=text],.add-grid select{
+    width:100%;font-size:16px;padding:10px;border:2px solid var(--ink);border-radius:8px;
+    background:#fff;color:var(--ink)}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
+  .empty{color:var(--muted);font-style:italic;padding:6px 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <figure class="turkey-frame" style="margin:0">
+      <img src="assets/turkey-lena.jpg" alt="A turkey outline filled in with colorful dot stickers">
+      <figcaption>🦃 Turkey by Lena</figcaption>
+    </figure>
+    <h1>Friendsgiving 2026</h1>
+    <p class="sub">Thursday, November 26, 2026 &nbsp;•&nbsp; <b>19 of us</b> &nbsp;•&nbsp; Claim a dish below!</p>
+    <div><span class="status" id="status"><span class="dot demo" id="statusDot"></span><span id="statusText">Connecting…</span></span></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+    <div class="demo-note" id="demoNote" hidden>
+      <b>Demo mode:</b> the live sign-up list isn't connected yet, so claims you make here
+      only save on this device for now. Once the host connects the database, everyone's
+      sign-ups will show up live for the whole group.
+    </div>
+  </header>
+
+  <div class="guests">
+    <h2>Who's coming — 19 people</h2>
+    <div class="chips" id="guestChips"></div>
+  </div>
+
+  <main id="list"></main>
+
+  <div class="add-box">
+    <h2>➕ Add something to bring</h2>
+    <p>Bringing something that's not on the list? Add it here with your own name for it.</p>
+    <div class="add-grid">
+      <div>
+        <label for="customName">What are you bringing?</label>
+        <input type="text" id="customName" placeholder="e.g. Cranberry sauce" maxlength="80">
+      </div>
+      <div>
+        <label for="customCat">Category</label>
+        <select id="customCat"></select>
+      </div>
+      <div><button class="btn" id="addCustomBtn" type="button">Add it</button></div>
+    </div>
+  </div>
+
+  <footer>Friendsgiving 2026 • Made with 🧡 for the whole crew</footer>
+</div>
+
+<!-- ================= Firebase config =================
+     PASTE YOUR FIREBASE WEB APP CONFIG BELOW.
+     Firebase console → Project settings → Your apps → Web app → copy the
+     firebaseConfig object and replace the placeholder values.
+     (These keys are public by design — security comes from the Firestore rules.) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot, updateDoc, setDoc, deleteField }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "PASTE-YOUR-API-KEY",
+  authDomain: "PASTE-YOUR-PROJECT.firebaseapp.com",
+  projectId: "PASTE-YOUR-PROJECT-ID",
+  storageBucket: "PASTE-YOUR-PROJECT.appspot.com",
+  messagingSenderId: "PASTE-YOUR-SENDER-ID",
+  appId: "PASTE-YOUR-APP-ID"
+};
+/* =============== end of config =============== */
+
+const LIVE = firebaseConfig.apiKey && !String(firebaseConfig.apiKey).startsWith("PASTE");
+const DOC_PATH = ["friendsgiving-2026", "signups"];
+
+const GUESTS = [
+  { name: "Nee family", n: 4 },
+  { name: "Hubbels", n: 4 },
+  { name: "Bynums", n: 4 },
+  { name: "Lauren", n: 1 },
+  { name: "Carol", n: 1 },
+  { name: "TJ", n: 1 },
+  { name: "Nee grandparents", n: 2 },
+  { name: "AP/KO", n: 2 },
+];
+
+const CATS = [
+  { id: "main", title: "Main Dish", emoji: "🦃" },
+  { id: "sides", title: "Sides", emoji: "🥘" },
+  { id: "apps", title: "Apps", emoji: "🧀" },
+  { id: "drinks", title: "Drinks", emoji: "🥤" },
+  { id: "desserts", title: "Desserts", emoji: "🍰" },
+];
+
+const ITEMS = [
+  { id: "turkey",          name: "Turkey",               emoji: "🦃", cat: "main",     slots: 2 },
+  { id: "mashed-potatoes", name: "Mashed potatoes",      emoji: "🥔", cat: "sides",    slots: 1 },
+  { id: "rolls",           name: "Rolls",                emoji: "🍞", cat: "sides",    slots: 1 },
+  { id: "sweet-potato",    name: "Sweet potato dish",    emoji: "🍠", cat: "sides",    slots: 1 },
+  { id: "cornbread",       name: "Corn bread",           emoji: "🌽", cat: "sides",    slots: 1 },
+  { id: "salad",           name: "Salad",                emoji: "🥗", cat: "sides",    slots: 1 },
+  { id: "roasted-veggies", name: "Roasted veggies",      emoji: "🥕", cat: "sides",    slots: 1 },
+  { id: "stuffing",        name: "Stuffing",             emoji: "🍞", cat: "sides",    slots: 2 },
+  { id: "green-bean",      name: "Green bean casserole", emoji: "🫘", cat: "sides",    slots: 1 },
+  { id: "fruit-tray",      name: "Large fruit tray",     emoji: "🍎", cat: "apps",     slots: 1 },
+  { id: "martinellis",     name: "Martinellis",          emoji: "🍾", cat: "drinks",   slots: 1 },
+  { id: "apple-pie",       name: "Apple pie",            emoji: "🥧", cat: "desserts", slots: 1 },
+  { id: "basque",          name: "Basque cheesecake",    emoji: "🍰", cat: "desserts", slots: 1 },
+];
+
+const $ = (s, el) => (el || document).querySelector(s);
+const el = (tag, cls, text) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+};
+
+let state = { claims: {}, custom: {} };   // claims: {"itemId-0": {by, note, at}}, custom: {id: {name, cat}}
+let formSlot = null;                      // "itemId-index" currently showing the claim form
+let db = null, docRef = null;
+
+const statusDot = $("#statusDot"), statusText = $("#statusText"), demoNote = $("#demoNote");
+
+function setStatus(kind, text) {
+  statusDot.className = "dot" + (kind === "demo" ? " demo" : kind === "err" ? " err" : "");
+  statusText.textContent = text;
+  demoNote.hidden = kind !== "demo";
+}
+
+/* ---------- storage layer: Firestore when configured, localStorage demo otherwise ---------- */
+const LS_KEY = "friendsgiving-2026-demo";
+function demoLoad() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || { claims: {}, custom: {} }; }
+  catch { return { claims: {}, custom: {} }; }
+}
+function demoSave() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+async function writeClaim(key, claim) {
+  if (LIVE) await updateDoc(docRef, { ["claims." + key]: claim });
+  else { state.claims[key] = claim; demoSave(); render(); }
+}
+async function clearClaim(key) {
+  if (LIVE) await updateDoc(docRef, { ["claims." + key]: deleteField() });
+  else { delete state.claims[key]; demoSave(); render(); }
+}
+async function addCustom(item) {
+  if (LIVE) await updateDoc(docRef, { ["custom." + item.id]: { name: item.name, cat: item.cat } });
+  else { state.custom[item.id] = { name: item.name, cat: item.cat }; demoSave(); render(); }
+}
+async function removeCustom(id) {
+  if (LIVE) await updateDoc(docRef, { ["custom." + id]: deleteField() });
+  else { delete state.custom[id]; demoSave(); render(); }
+}
+
+async function initStore() {
+  if (!LIVE) { state = demoLoad(); setStatus("demo", "Demo mode — sign-ups save on this device only"); render(); return; }
+  try {
+    db = getFirestore(initializeApp(firebaseConfig));
+    docRef = doc(db, ...DOC_PATH);
+    await setDoc(docRef, { claims: {}, custom: {} }, { merge: true });
+    onSnapshot(docRef, (snap) => {
+      const d = snap.data() || {};
+      state = { claims: d.claims || {}, custom: d.custom || {} };
+      setStatus("live", "Live — everyone's sign-ups update instantly");
+      render();
+    }, (err) => { console.error(err); setStatus("err", "Couldn't reach the sign-up list — check your connection and reload"); });
+  } catch (err) {
+    console.error(err);
+    setStatus("err", "Sign-up list isn't connected yet — the host is setting it up");
+    state = demoLoad(); render();
+  }
+}
+
+/* ---------- rendering ---------- */
+function allItems() {
+  const custom = Object.entries(state.custom).map(([id, c]) =>
+    ({ id, name: c.name, emoji: "🍽️", cat: c.cat, slots: 1, custom: true }));
+  return [...ITEMS, ...custom];
+}
+
+function totalSlots() { return allItems().reduce((a, it) => a + it.slots, 0); }
+function claimedCount() {
+  return allItems().reduce((a, it) => {
+    for (let i = 0; i < it.slots; i++) if (state.claims[it.id + "-" + i]) a++;
+    return a;
+  }, 0);
+}
+
+function renderGuests() {
+  const box = $("#guestChips");
+  box.innerHTML = "";
+  GUESTS.forEach(g => {
+    const c = el("span", "chip", g.name + " ");
+    c.appendChild(el("span", null, "× " + g.n));
+    box.appendChild(c);
+  });
+}
+
+function claimForm(slotKey, itemName) {
+  const f = el("div", "claim-form");
+  f.appendChild(el("label", null, "Who's bringing " + itemName + "?"));
+  const sel = el("select");
+  GUESTS.forEach(g => {
+    const o = document.createElement("option");
+    o.value = g.name; o.textContent = g.name + (g.n > 1 ? " (" + g.n + " people)" : "");
+    sel.appendChild(o);
+  });
+  const other = document.createElement("option");
+  other.value = "__other"; other.textContent = "Someone else…";
+  sel.appendChild(other);
+  f.appendChild(sel);
+  const otherInput = el("input");
+  otherInput.type = "text"; otherInput.placeholder = "Type a name"; otherInput.maxLength = 60;
+  otherInput.style.display = "none";
+  sel.addEventListener("change", () => { otherInput.style.display = sel.value === "__other" ? "" : "none"; });
+  f.appendChild(otherInput);
+  f.appendChild(el("label", null, "Note (optional) — e.g. grandma's recipe, serves 20"));
+  const note = el("input");
+  note.type = "text"; note.placeholder = "Anything to add?"; note.maxLength = 120;
+  f.appendChild(note);
+  const row = el("div", "form-row");
+  const save = el("button", "btn small", "Save — I'll bring it");
+  save.type = "button";
+  save.addEventListener("click", async () => {
+    const by = sel.value === "__other" ? otherInput.value.trim() : sel.value;
+    if (!by) { otherInput.focus(); return; }
+    formSlot = null;
+    try { await writeClaim(slotKey, { by, note: note.value.trim(), at: Date.now() }); }
+    catch (e) { console.error(e); alert("Couldn't save — check your connection and try again."); }
+    render();
+  });
+  const cancel = el("button", "btn ghost small", "Cancel");
+  cancel.type = "button";
+  cancel.addEventListener("click", () => { formSlot = null; render(); });
+  row.appendChild(cancel); row.appendChild(save);
+  f.appendChild(row);
+  return f;
+}
+
+function renderList() {
+  const list = $("#list");
+  list.innerHTML = "";
+  const items = allItems();
+  CATS.forEach(cat => {
+    const catItems = items.filter(it => it.cat === cat.id);
+    if (!catItems.length) return;
+    const sec = el("section", "cat");
+    sec.appendChild(el("h2", null, cat.emoji + " " + cat.title));
+    catItems.forEach(it => {
+      const card = el("div", "item");
+      const head = el("div", "item-head");
+      head.appendChild(el("span", "emoji", it.emoji));
+      head.appendChild(el("h3", null, it.name));
+      head.appendChild(el("span", "count", it.slots > 1 ? it.slots + " needed" : ""));
+      if (it.custom) {
+        const claimed = [...Array(it.slots)].some((_, i) => state.claims[it.id + "-" + i]);
+        if (!claimed) {
+          const del = el("button", "del", "✕");
+          del.type = "button"; del.title = "Remove this item";
+          del.addEventListener("click", async () => {
+            if (!confirm("Remove “" + it.name + "” from the list?")) return;
+            try { await removeCustom(it.id); } catch (e) { console.error(e); }
+            render();
+          });
+          head.appendChild(del);
+        }
+      }
+      card.appendChild(head);
+      const slots = el("div", "slots");
+      for (let i = 0; i < it.slots; i++) {
+        const key = it.id + "-" + i;
+        const claim = state.claims[key];
+        const slot = el("div", "slot" + (claim ? " claimed" : ""));
+        if (claim) {
+          const who = el("div", "who");
+          who.appendChild(el("b", null, "✅ " + claim.by));
+          if (claim.note) who.appendChild(el("small", null, claim.note));
+          slot.appendChild(who);
+          const ch = el("button", "btn ghost small", "Change");
+          ch.type = "button";
+          ch.addEventListener("click", async () => {
+            try { await clearClaim(key); } catch (e) { console.error(e); }
+            render();
+          });
+          slot.appendChild(ch);
+        } else {
+          slot.appendChild(el("div", "who", it.slots > 1 ? "Spot " + (i + 1) + " — still needed" : "Still needed"));
+          const b = el("button", "btn small", "I'll bring it");
+          b.type = "button";
+          b.addEventListener("click", () => { formSlot = key; render(); });
+          slot.appendChild(b);
+        }
+        slots.appendChild(slot);
+        if (formSlot === key) slots.appendChild(claimForm(key, it.name));
+      }
+      card.appendChild(slots);
+      sec.appendChild(card);
+    });
+    list.appendChild(sec);
+  });
+  const total = totalSlots(), done = claimedCount();
+  $("#progressBar").style.width = total ? Math.round(done / total * 100) + "%" : "0%";
+  $("#progressLabel").textContent = done + " of " + total + " spots claimed" +
+    (done === total && total ? " — everything's covered! 🎉" : done === 0 ? " — nothing claimed yet" : "");
+}
+
+function render() { renderGuests(); renderList(); }
+
+/* ---------- add custom item ---------- */
+const catSel = $("#customCat");
+CATS.forEach(c => {
+  const o = document.createElement("option");
+  o.value = c.id; o.textContent = c.title;
+  catSel.appendChild(o);
+});
+$("#addCustomBtn").addEventListener("click", async () => {
+  const nameInput = $("#customName");
+  const name = nameInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  const id = "c" + Date.now().toString(36);
+  try { await addCustom({ id, name, cat: catSel.value }); } catch (e) { console.error(e); alert("Couldn't add — check your connection and try again."); }
+  nameInput.value = "";
+  render();
+});
+$("#customName").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#addCustomBtn").click(); });
+
+initStore();
+</script>
+</body>
+</html>
