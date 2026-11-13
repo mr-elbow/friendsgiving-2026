@@ -111,9 +111,6 @@
     </figure>
     <h1>Friendsgiving 2026</h1>
     <p class="sub">Thursday, November 26, 2026 &nbsp;•&nbsp; <b id="headcount">13 adults • 6 kids • 19 of us</b> &nbsp;•&nbsp; Claim a dish below!</p>
-    <div><span class="status" id="status"><span class="dot demo" id="statusDot"></span><span id="statusText">Connecting…</span></span></div>
-    <div class="progress"><div id="progressBar"></div></div>
-    <div class="progress-label" id="progressLabel"></div>
     <div class="demo-note" id="demoNote" hidden>
       <b>Demo mode:</b> the live sign-up list isn't connected yet, so claims you make here
       only save on this device for now. Once the host connects the database, everyone's
@@ -246,9 +243,9 @@ let db = null, docRef = null;
 const statusDot = $("#statusDot"), statusText = $("#statusText"), demoNote = $("#demoNote");
 
 function setStatus(kind, text) {
-  statusDot.className = "dot" + (kind === "demo" ? " demo" : kind === "err" ? " err" : "");
-  statusText.textContent = text;
-  demoNote.hidden = kind !== "demo";
+  if (statusDot) statusDot.className = "dot" + (kind === "demo" ? " demo" : kind === "err" ? " err" : "");
+  if (statusText) statusText.textContent = text;
+  if (demoNote) demoNote.hidden = kind !== "demo";
 }
 
 /* ---------- storage layer: Firestore when configured, localStorage demo otherwise ---------- */
@@ -425,10 +422,6 @@ function renderList() {
     });
     list.appendChild(sec);
   });
-  const total = totalSlots(), done = claimedCount();
-  $("#progressBar").style.width = total ? Math.round(done / total * 100) + "%" : "0%";
-  $("#progressLabel").textContent = done + " of " + total + " spots claimed" +
-    (done === total && total ? " — everything's covered! 🎉" : done === 0 ? " — nothing claimed yet" : "");
 }
 
 function render() { renderGuests(); renderList(); }
