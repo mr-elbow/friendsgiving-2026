@@ -110,7 +110,7 @@
       <img src="assets/turkey-lena.jpg" alt="A turkey outline filled in with colorful dot stickers">
     </figure>
     <h1>Friendsgiving 2026</h1>
-    <p class="sub">Thursday, November 26, 2026 &nbsp;•&nbsp; <b>19 of us</b> &nbsp;•&nbsp; Claim a dish below!</p>
+    <p class="sub">Thursday, November 26, 2026 &nbsp;•&nbsp; <b id="headcount">13 adults • 6 kids • 19 of us</b> &nbsp;•&nbsp; Claim a dish below!</p>
     <div><span class="status" id="status"><span class="dot demo" id="statusDot"></span><span id="statusText">Connecting…</span></span></div>
     <div class="progress"><div id="progressBar"></div></div>
     <div class="progress-label" id="progressLabel"></div>
@@ -122,7 +122,7 @@
   </header>
 
   <div class="guests">
-    <h2>Who's coming — 19 people</h2>
+    <h2>Who's coming — 13 adults &amp; 6 kids</h2>
     <div class="chips" id="guestChips"></div>
   </div>
 
@@ -171,15 +171,16 @@ const LIVE = firebaseConfig.apiKey && !String(firebaseConfig.apiKey).startsWith(
 const DOC_PATH = ["friendsgiving-2026", "signups"];
 
 const GUESTS = [
-  { name: "Nee family", n: 4 },
-  { name: "Hubbels", n: 4 },
-  { name: "Bynums", n: 4 },
-  { name: "Lauren", n: 1 },
-  { name: "Carol", n: 1 },
-  { name: "TJ", n: 1 },
-  { name: "Nee grandparents", n: 2 },
-  { name: "AP/KO", n: 2 },
+  { name: "Nee family", adults: 2, kids: 2 },
+  { name: "Hubbels", adults: 2, kids: 2 },
+  { name: "Bynums", adults: 2, kids: 2 },
+  { name: "Lauren", adults: 1, kids: 0 },
+  { name: "Carol", adults: 1, kids: 0 },
+  { name: "TJ", adults: 1, kids: 0 },
+  { name: "Nee grandparents", adults: 2, kids: 0 },
+  { name: "AP/KO", adults: 2, kids: 0 },
 ];
+const gSize = g => g.adults + g.kids;
 
 const CATS = [
   { id: "main", title: "Main Dish", emoji: "🦃" },
@@ -321,11 +322,17 @@ function claimedCount() {
 function renderGuests() {
   const box = $("#guestChips");
   box.innerHTML = "";
+  let adults = 0, kids = 0;
   GUESTS.forEach(g => {
+    adults += g.adults; kids += g.kids;
     const c = el("span", "chip", g.name + " ");
-    c.appendChild(el("span", null, "× " + g.n));
+    const parts = [];
+    if (g.adults) parts.push(g.adults + (g.adults === 1 ? " adult" : " adults"));
+    if (g.kids) parts.push(g.kids + (g.kids === 1 ? " kid" : " kids"));
+    c.appendChild(el("span", null, "· " + parts.join(" · ")));
     box.appendChild(c);
   });
+  $("#headcount").textContent = adults + " adults • " + kids + " kids • " + (adults + kids) + " of us";
 }
 
 function claimForm(slotKey, itemName) {
@@ -334,7 +341,7 @@ function claimForm(slotKey, itemName) {
   const sel = el("select");
   GUESTS.forEach(g => {
     const o = document.createElement("option");
-    o.value = g.name; o.textContent = g.name + (g.n > 1 ? " (" + g.n + " people)" : "");
+    o.value = g.name; o.textContent = g.name + (gSize(g) > 1 ? " (" + gSize(g) + " people)" : "");
     sel.appendChild(o);
   });
   const other = document.createElement("option");
