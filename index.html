@@ -393,9 +393,22 @@ function renderList() {
           const del = el("button", "del", "✕");
           del.type = "button"; del.title = "Remove this item";
           del.addEventListener("click", async () => {
-            if (!confirm("Remove “" + it.name + "” from the list?")) return;
-            try { await removeCustom(it.id); } catch (e) { console.error(e); }
-            render();
+            if (del.dataset.armed) {
+              try { await removeCustom(it.id); } catch (e) { console.error(e); }
+              render();
+              return;
+            }
+            del.dataset.armed = "1";
+            del.textContent = "Sure?";
+            del.style.color = "var(--red)";
+            del.style.fontSize = "13px";
+            setTimeout(() => {
+              if (!del.isConnected) return;
+              delete del.dataset.armed;
+              del.textContent = "✕";
+              del.style.color = "";
+              del.style.fontSize = "";
+            }, 4000);
           });
           head.appendChild(del);
         }
