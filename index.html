@@ -338,21 +338,9 @@ function renderGuests() {
 function claimForm(slotKey, itemName) {
   const f = el("div", "claim-form");
   f.appendChild(el("label", null, "Who's bringing " + itemName + "?"));
-  const sel = el("select");
-  GUESTS.forEach(g => {
-    const o = document.createElement("option");
-    o.value = g.name; o.textContent = g.name + (gSize(g) > 1 ? " (" + gSize(g) + " people)" : "");
-    sel.appendChild(o);
-  });
-  const other = document.createElement("option");
-  other.value = "__other"; other.textContent = "Someone else…";
-  sel.appendChild(other);
-  f.appendChild(sel);
-  const otherInput = el("input");
-  otherInput.type = "text"; otherInput.placeholder = "Type a name"; otherInput.maxLength = 60;
-  otherInput.style.display = "none";
-  sel.addEventListener("change", () => { otherInput.style.display = sel.value === "__other" ? "" : "none"; });
-  f.appendChild(otherInput);
+  const nameInput = el("input");
+  nameInput.type = "text"; nameInput.placeholder = "Your name — e.g. Nee family"; nameInput.maxLength = 60;
+  f.appendChild(nameInput);
   f.appendChild(el("label", null, "Note (optional) — e.g. grandma's recipe, serves 20"));
   const note = el("input");
   note.type = "text"; note.placeholder = "Anything to add?"; note.maxLength = 120;
@@ -361,8 +349,8 @@ function claimForm(slotKey, itemName) {
   const save = el("button", "btn small", "Save — I'll bring it");
   save.type = "button";
   save.addEventListener("click", async () => {
-    const by = sel.value === "__other" ? otherInput.value.trim() : sel.value;
-    if (!by) { otherInput.focus(); return; }
+    const by = nameInput.value.trim();
+    if (!by) { nameInput.focus(); return; }
     formSlot = null;
     try { await writeClaim(slotKey, { by, note: note.value.trim(), at: Date.now() }); }
     catch (e) { console.error(e); alert("Couldn't save — check your connection and try again."); }
