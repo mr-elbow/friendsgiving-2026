@@ -93,7 +93,7 @@
   .add-box h2{font-family:Georgia,serif;font-size:22px;color:var(--red);margin:0 0 4px}
   .add-box p{margin:0 0 12px;color:var(--muted);font-size:14px}
   .add-grid{display:grid;gap:8px}
-  @media(min-width:560px){.add-grid{grid-template-columns:1fr 170px auto;align-items:end}}
+  @media(min-width:560px){.add-grid{grid-template-columns:1fr 170px;align-items:end}}
   .add-grid label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px}
   .add-grid input[type=text],.add-grid select{
     width:100%;font-size:16px;padding:10px;border:2px solid var(--ink);border-radius:8px;
@@ -136,6 +136,10 @@
       <div>
         <label for="customCat">Category</label>
         <select id="customCat"></select>
+      </div>
+      <div>
+        <label for="customBy">Who's bringing it? (optional)</label>
+        <input type="text" id="customBy" placeholder="Your name — leave blank if nobody yet" maxlength="60">
       </div>
       <div><button class="btn" id="addCustomBtn" type="button">Add it</button></div>
     </div>
@@ -267,9 +271,16 @@ async function clearClaim(key) {
   if (LIVE) await updateDoc(docRef, { ["claims." + key]: deleteField() });
   else { delete state.claims[key]; demoSave(); render(); }
 }
-async function addCustom(item) {
-  if (LIVE) await updateDoc(docRef, { ["custom." + item.id]: { name: item.name, cat: item.cat } });
-  else { state.custom[item.id] = { name: item.name, cat: item.cat }; demoSave(); render(); }
+async function addCustom(item, claim) {
+  if (LIVE) {
+    const fields = { ["custom." + item.id]: { name: item.name, cat: item.cat } };
+    if (claim) fields["claims." + item.id + "-0"] = claim;
+    await updateDoc(docRef, fields);
+  } else {
+    state.custom[item.id] = { name: item.name, cat: item.cat };
+    if (claim) state.claims[item.id + "-0"] = claim;
+    demoSave(); render();
+  }
 }
 async function removeCustom(id) {
   if (LIVE) await updateDoc(docRef, { ["custom." + id]: deleteField() });
@@ -437,9 +448,12 @@ $("#addCustomBtn").addEventListener("click", async () => {
   const nameInput = $("#customName");
   const name = nameInput.value.trim();
   if (!name) { nameInput.focus(); return; }
+  const byInput = $("#customBy");
+  const by = byInput.value.trim();
   const id = "c" + Date.now().toString(36);
-  try { await addCustom({ id, name, cat: catSel.value }); } catch (e) { console.error(e); alert("Couldn't add — check your connection and try again."); }
+  try { await addCustom({ id, name, cat: catSel.value }, by ? { by, note: "", at: Date.now() } : null); } catch (e) { console.error(e); alert("Couldn't add — check your connection and try again."); }
   nameInput.value = "";
+  byInput.value = "";
   render();
 });
 $("#customName").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#addCustomBtn").click(); });
