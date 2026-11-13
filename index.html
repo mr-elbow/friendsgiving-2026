@@ -22,7 +22,7 @@
   .turkey-frame{display:inline-block;background:#fff;border:4px solid var(--ink);
     border-radius:18px;box-shadow:6px 6px 0 var(--ink);padding:10px 10px 6px;
     transform:rotate(-1.2deg)}
-  .turkey-frame img{display:block;width:min(300px,72vw);height:auto;border-radius:10px}
+  .turkey-frame img{display:block;width:min(360px,82vw);height:auto;border-radius:10px}
   .turkey-frame figcaption{font-size:13px;color:var(--muted);padding:8px 4px 4px;font-weight:600}
   h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,8vw,52px);
     margin:18px 0 2px;color:var(--red);letter-spacing:.5px}
@@ -108,7 +108,6 @@
   <header class="hero">
     <figure class="turkey-frame" style="margin:0">
       <img src="assets/turkey-lena.jpg" alt="A turkey outline filled in with colorful dot stickers">
-      <figcaption>🦃 Turkey by Lena</figcaption>
     </figure>
     <h1>Friendsgiving 2026</h1>
     <p class="sub">Thursday, November 26, 2026 &nbsp;•&nbsp; <b>19 of us</b> &nbsp;•&nbsp; Claim a dish below!</p>
@@ -155,7 +154,7 @@
      (These keys are public by design — security comes from the Firestore rules.) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot, updateDoc, setDoc, deleteField }
+import { getFirestore, doc, onSnapshot, updateDoc, setDoc, deleteField, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -206,6 +205,31 @@ const ITEMS = [
   { id: "basque",          name: "Basque cheesecake",    emoji: "🍰", cat: "desserts", slots: 1 },
 ];
 
+/* Claims already known (Nov 12) — the starting state.
+   Demo mode shows these unless this device saved its own changes.
+   Live mode seeds the Firestore doc with them once, only if it is empty. */
+const DEFAULT_STATE = {
+  claims: {
+    "turkey-0":          { by: "Ko/Shawn", note: "", at: 0 },
+    "turkey-1":          { by: "Nee grandparents", note: "", at: 0 },
+    "fruit-tray-0":      { by: "Nee grandparents", note: "", at: 0 },
+    "c-gravy-0":         { by: "Ko", note: "", at: 0 },
+    "mashed-potatoes-0": { by: "Kura/Lena", note: "", at: 0 },
+    "roasted-veggies-0": { by: "Shawn", note: "", at: 0 },
+    "salad-0":           { by: "Shawn", note: "", at: 0 },
+    "stuffing-0":        { by: "Ko", note: "", at: 0 },
+    "stuffing-1":        { by: "Nee grandparents", note: "", at: 0 },
+    "c-pimento-0":       { by: "Mike", note: "", at: 0 },
+    "c-chili-0":         { by: "Nate", note: "", at: 0 },
+    "martinellis-0":     { by: "TJ", note: "", at: 0 },
+  },
+  custom: {
+    "c-gravy":   { name: "Gravy", cat: "sides" },
+    "c-pimento": { name: "Hot dog pimento cheese", cat: "apps" },
+    "c-chili":   { name: "Chili crisp dip", cat: "apps" },
+  },
+};
+
 const $ = (s, el) => (el || document).querySelector(s);
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
@@ -229,8 +253,11 @@ function setStatus(kind, text) {
 /* ---------- storage layer: Firestore when configured, localStorage demo otherwise ---------- */
 const LS_KEY = "friendsgiving-2026-demo";
 function demoLoad() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || { claims: {}, custom: {} }; }
-  catch { return { claims: {}, custom: {} }; }
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY));
+    if (saved) return { claims: saved.claims || {}, custom: saved.custom || {} };
+  } catch {}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
 function demoSave() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
@@ -256,7 +283,13 @@ async function initStore() {
   try {
     db = getFirestore(initializeApp(firebaseConfig));
     docRef = doc(db, ...DOC_PATH);
-    await setDoc(docRef, { claims: {}, custom: {} }, { merge: true });
+    const first = await getDoc(docRef);
+    const d0 = first.exists() ? (first.data() || {}) : {};
+    const noClaims = !d0.claims || Object.keys(d0.claims).length === 0;
+    const noCustom = !d0.custom || Object.keys(d0.custom).length === 0;
+    if (!first.exists() || (noClaims && noCustom)) {
+      await setDoc(docRef, JSON.parse(JSON.stringify(DEFAULT_STATE)), { merge: true });
+    }
     onSnapshot(docRef, (snap) => {
       const d = snap.data() || {};
       state = { claims: d.claims || {}, custom: d.custom || {} };
